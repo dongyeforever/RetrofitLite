@@ -2,6 +2,7 @@ package vip.lovek.retrofit;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.FormBody;
@@ -51,7 +52,7 @@ public class ServiceMethod {
         if (urlBuilder == null) {
             urlBuilder = baseUrl.newBuilder(relativeUrl);
         }
-        url = urlBuilder.build();
+        url = Objects.requireNonNull(urlBuilder).build();
 
         // 请求体
         FormBody formBody = null;
@@ -70,8 +71,7 @@ public class ServiceMethod {
         if (urlBuilder == null) {
             urlBuilder = baseUrl.newBuilder(relativeUrl);
         }
-        assert urlBuilder != null;
-        urlBuilder.addQueryParameter(key, value);
+        Objects.requireNonNull(urlBuilder).addQueryParameter(key, value);
     }
 
     public static class Builder {
@@ -108,17 +108,18 @@ public class ServiceMethod {
             // 解析方法参数注解
             int length = parameterAnnotations.length;
             parameterHandlers = new ParameterHandler[length];
+            // TODO 检查请求方法参数必须有注解一一对应
             for (int i = 0; i < length; i++) {
                 Annotation[] parameterAnnotation = parameterAnnotations[i];
                 // parameterAnnotation 参数上的注解，可以多个
                 for (Annotation annotation : parameterAnnotation) {
                     if (annotation instanceof Field) {
                         //TODO 检查 Field 只能用于 POST
-                        String value = ((Field) annotation).value();
-                        parameterHandlers[i] = new ParameterHandler.FieldParameterHandler(value);
+                        String key = ((Field) annotation).value();
+                        parameterHandlers[i] = new ParameterHandler.FieldParameterHandler(key);
                     } else if (annotation instanceof Query) {
-                        String value = ((Query) annotation).value();
-                        parameterHandlers[i] = new ParameterHandler.QueryParameterHandler(value);
+                        String key = ((Query) annotation).value();
+                        parameterHandlers[i] = new ParameterHandler.QueryParameterHandler(key);
                     }
                 }
             }
