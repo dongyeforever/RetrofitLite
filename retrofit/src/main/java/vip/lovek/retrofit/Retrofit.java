@@ -18,9 +18,6 @@ public class Retrofit {
     HttpUrl baseUrl;
     Call.Factory callFactory;
 
-    public Retrofit() {
-    }
-
     public Retrofit(HttpUrl baseUrl, Call.Factory callFactory) {
         this.baseUrl = baseUrl;
         this.callFactory = callFactory;
